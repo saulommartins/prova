@@ -1,0 +1,44 @@
+version: '3'
+services:
+  coopercard_db:
+    container_name: coopercard_db
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=coopercard
+      - MYSQL_USER=coopercard
+      - MYSQL_PASSWORD=coopercard
+      - MYSQL_ROOT_PASSWORD=coopercard
+    volumes:
+        - ./mysql:/var/lib/mysql
+    ports:
+      - 3307:3306
+    networks:
+      - coopercard_backend
+  coopercard_php:
+    container_name: coopercard_php
+    build:
+      context: ./php-fpm
+    volumes:
+      - ../:/var/www/html
+    links:
+      - coopercard_db
+    networks:
+      - coopercard_backend
+
+  coopercard_web:
+    image: nginx:latest
+    container_name:  coopercard_web
+    ports:
+      - "8081:80"
+    networks:
+        - coopercard_frontend
+    volumes:
+        - ../:/var/www/html
+        - ./nginx/conf:/etc/nginx/conf.d
+        - ./nginx/logs:/var/log/nginx/
+    links:
+      - coopercard_php
+    networks:
+      - coopercard_backend
+networks:
+  coopercard_backend:      
